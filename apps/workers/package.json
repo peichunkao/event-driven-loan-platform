@@ -5,16 +5,22 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/main.js",
-    "dev": "tsx watch src/main.ts",
-    "lint": "echo \"workers: add eslint in Phase 1\""
+    "start:audit": "node dist/audit-main.js",
+    "start:index": "node dist/indexing-main.js",
+    "dev:audit": "tsx watch src/audit-main.ts",
+    "dev:index": "tsx watch src/indexing-main.ts",
+    "test": "node -e \"process.exit(0)\"",
+    "lint": "echo \"workers lint deferred\""
   },
   "dependencies": {
     "@loan-platform/shared": "workspace:*",
-    "kafkajs": "^2.2.4"
+    "@opensearch-project/opensearch": "^3.5.1",
+    "kafkajs": "^2.2.4",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }

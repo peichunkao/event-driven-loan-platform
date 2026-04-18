@@ -2,14 +2,26 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'node:path';
+import { HealthResolver } from '../src/health.resolver';
 
-describe('GraphQL (e2e)', () => {
+/** Lightweight GraphQL e2e (no database) so CI can run without Docker. */
+describe('GraphQL health (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        GraphQLModule.forRoot<ApolloDriverConfig>({
+          driver: ApolloDriver,
+          autoSchemaFile: join(__dirname, 'health-schema.gql'),
+          sortSchema: true,
+          path: '/graphql',
+        }),
+      ],
+      providers: [HealthResolver],
     }).compile();
 
     app = moduleFixture.createNestApplication();

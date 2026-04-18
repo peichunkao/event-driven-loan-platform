@@ -19,17 +19,25 @@ Portfolio monorepo demonstrating a **React + TypeScript** frontend, **Node.js Gr
 corepack enable
 pnpm install
 pnpm build
-pnpm dev:api    # http://localhost:3000/graphql
-pnpm dev:web    # http://localhost:5173
+cp apps/api/.env.example apps/api/.env   # adjust if needed
+pnpm docker:up                           # Postgres + Redpanda + OpenSearch
+pnpm dev:api                             # http://localhost:3000/graphql
+pnpm dev:web                             # http://localhost:5173
 ```
 
-Optional: start infrastructure services:
+In separate terminals (after Docker is healthy):
 
 ```bash
-pnpm docker:up
+pnpm --filter workers dev:audit    # audit consumer → Postgres
+pnpm --filter workers dev:index    # indexing consumer → OpenSearch
 ```
 
-See [docs/DEV_SETUP.md](docs/DEV_SETUP.md) for toolchain notes and [docs/INFRA.md](docs/INFRA.md) for container details.
+The web UI creates **draft** applications, **submits** them (emits `LoanApplicationSubmitted` to Kafka), polls **loan applications** every **3s**, and shows **audit** (Postgres) and **search timeline** plus **event overview** (OpenSearch).
+
+## Testing
+
+- `pnpm test` — Jest coverage for `apps/api` (statements/lines/functions **≥90%**, branches **≥80%**) and unit tests for `packages/shared`.
+- `pnpm --filter api test:e2e` — lightweight GraphQL health check (no Docker required).
 
 ## Layout
 
@@ -48,7 +56,7 @@ See [docs/DEV_SETUP.md](docs/DEV_SETUP.md) for toolchain notes and [docs/INFRA.m
 |---------|---------|
 | `pnpm dev:api` / `pnpm dev:web` | Run apps in dev mode |
 | `pnpm build` | Build all packages |
-| `pnpm test` | Run tests (where defined) |
+| `pnpm test` | Jest (API + shared) |
 | `pnpm docker:up` / `pnpm docker:down` | Start/stop Docker stack |
 | `pnpm docker:config` | Validate Compose file |
 

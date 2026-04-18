@@ -101,6 +101,10 @@ pnpm docker:up  # Postgres + Redpanda + OpenSearch (see docs/INFRA.md)
 
 Copy `apps/web/.env.example` if you change the GraphQL URL (defaults to `http://localhost:3000/graphql`).
 
+Copy `apps/api/.env.example` to `apps/api/.env` for local API settings (`DATABASE_URL`, `KAFKA_BROKERS`, `OPENSEARCH_URL`). After `pnpm docker:up`, run workers (`pnpm --filter workers dev:audit` and `dev:index`) so submitted applications produce audit rows and OpenSearch documents.
+
+Run `pnpm test` for Jest (API coverage gates + shared package tests).
+
 ## Verification checklist
 
 - [ ] `gh auth status` shows a logged-in user (if you use `gh`).

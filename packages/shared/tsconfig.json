@@ -3,7 +3,14 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "composite": true
+    "composite": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
 }

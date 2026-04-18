@@ -2,23 +2,27 @@
   "name": "@loan-platform/shared",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "echo \"shared: add eslint in Phase 1\""
+    "lint": "echo \"shared: add eslint in Phase 1\"",
+    "test": "jest --config jest.config.cjs",
+    "test:cov": "jest --config jest.config.cjs --coverage"
   },
   "dependencies": {
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.2.5",
+    "@types/jest": "^30.0.0"
   }
 }
