@@ -137,6 +137,9 @@ importers:
       '@loan-platform/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
     devDependencies:
       '@types/node':
         specifier: ^24.0.0

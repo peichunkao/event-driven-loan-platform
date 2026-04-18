@@ -10,6 +10,7 @@
     "dev:web": "pnpm --filter web dev",
     "dev:workers": "pnpm --filter workers dev",
     "dev:simulator": "pnpm --filter simulator dev",
+    "dev:notifications": "pnpm --filter workers dev:notifications",
     "build": "pnpm --filter @loan-platform/shared build && pnpm --filter api build && pnpm --filter web build && pnpm --filter workers build && pnpm --filter simulator build",
     "lint": "pnpm -r --if-present run lint",
     "test": "pnpm --filter api test:cov && pnpm --filter @loan-platform/shared test",

@@ -7,8 +7,10 @@
     "build": "tsc -p tsconfig.json",
     "start:audit": "node dist/audit-main.js",
     "start:index": "node dist/indexing-main.js",
+    "start:notifications": "node dist/notification-main.js",
     "dev:audit": "tsx watch src/audit-main.ts",
     "dev:index": "tsx watch src/indexing-main.ts",
+    "dev:notifications": "tsx watch src/notification-main.ts",
     "test": "node -e \"process.exit(0)\"",
     "lint": "echo \"workers lint deferred\""
   },

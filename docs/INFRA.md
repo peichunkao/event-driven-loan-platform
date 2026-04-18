@@ -20,4 +20,4 @@ pnpm docker:down
 pnpm docker:config   # validates compose file
 ```
 
-Use `infra/docker/.env.example` as the template for ports and DB credentials.
+Use `infra/docker/.env.example` as the template for ports and host URLs. Postgres credentials for the container are loaded from `infra/docker/postgres.env` (see `docker-compose.yml`).

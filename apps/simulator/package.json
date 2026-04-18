@@ -7,10 +7,11 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
     "dev": "tsx watch src/main.ts",
-    "lint": "echo \"simulator: add eslint in Phase 1\""
+    "lint": "echo \"simulator: eslint deferred\""
   },
   "dependencies": {
-    "@loan-platform/shared": "workspace:*"
+    "@loan-platform/shared": "workspace:*",
+    "kafkajs": "^2.2.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

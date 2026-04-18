@@ -172,7 +172,8 @@ export default function App() {
       <header>
         <h1>Loan platform</h1>
         <p className="muted">
-          Phase 1–2: Postgres + Kafka (Redpanda) + audit + OpenSearch indexing
+          Phases 1–4: Postgres + Redpanda + GraphQL + audit + OpenSearch + simulator +
+          notifications stub
         </p>
       </header>
 

@@ -2,6 +2,69 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuditRecordGraph {
+  applicationId: String!
+  createdAt: String!
+  eventId: String!
+  eventType: String!
+  id: ID!
+  payloadJson: String!
+}
+
+input CreateLoanApplicationInput {
+  amount: Float!
+  bankerId: String!
+  branchId: String!
+  customerName: String!
+  productCode: String!
+}
+
+type EventOverviewGraph {
+  byType: [EventTypeCount!]!
+  total: Float!
+}
+
+type EventTypeCount {
+  count: Float!
+  eventType: String!
+}
+
+type LoanApplicationGraph {
+  amount: String!
+  bankerId: String!
+  branchId: String!
+  createdAt: String!
+  customerName: String!
+  id: ID!
+  productCode: String!
+  status: LoanApplicationStatus!
+  updatedAt: String!
+}
+
+enum LoanApplicationStatus {
+  DRAFT
+  SUBMITTED
+}
+
+type LoanEventSearchHit {
+  applicationId: String!
+  bankerId: String!
+  eventId: String!
+  eventType: String!
+  payloadJson: String!
+  timestamp: String!
+}
+
+type Mutation {
+  createLoanApplication(input: CreateLoanApplicationInput!): LoanApplicationGraph!
+  submitLoanApplication(id: ID!): LoanApplicationGraph!
+}
+
 type Query {
+  auditTrail(applicationId: ID!): [AuditRecordGraph!]!
+  eventOverview: EventOverviewGraph!
   health: String!
+  loanApplication(id: ID!): LoanApplicationGraph!
+  loanApplications: [LoanApplicationGraph!]!
+  searchLoanEvents(applicationId: ID!): [LoanEventSearchHit!]!
 }

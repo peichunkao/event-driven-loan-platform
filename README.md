@@ -28,11 +28,13 @@ pnpm dev:web                             # http://localhost:5173
 In separate terminals (after Docker is healthy):
 
 ```bash
-pnpm --filter workers dev:audit    # audit consumer → Postgres
-pnpm --filter workers dev:index    # indexing consumer → OpenSearch
+pnpm --filter workers dev:audit       # audit consumer → Postgres
+pnpm --filter workers dev:index       # indexing consumer → OpenSearch
+pnpm dev:simulator                    # Phase 3: synthetic downstream events → Kafka
+pnpm dev:notifications                # Phase 4: stub handler for NotificationSent
 ```
 
-The web UI creates **draft** applications, **submits** them (emits `LoanApplicationSubmitted` to Kafka), polls **loan applications** every **3s**, and shows **audit** (Postgres) and **search timeline** plus **event overview** (OpenSearch).
+The web UI creates **draft** applications, **submits** them (emits `LoanApplicationSubmitted` to Kafka), polls **loan applications** every **3s**, and shows **audit** (Postgres) and **search timeline** plus **event overview** (OpenSearch). See [docs/PHASES.md](docs/PHASES.md) for the phase map.
 
 ## Testing
 
@@ -55,6 +57,7 @@ The web UI creates **draft** applications, **submits** them (emits `LoanApplicat
 | Command | Purpose |
 |---------|---------|
 | `pnpm dev:api` / `pnpm dev:web` | Run apps in dev mode |
+| `pnpm dev:simulator` / `pnpm dev:notifications` | Phase 3–4 processes (Kafka) |
 | `pnpm build` | Build all packages |
 | `pnpm test` | Jest (API + shared) |
 | `pnpm docker:up` / `pnpm docker:down` | Start/stop Docker stack |
