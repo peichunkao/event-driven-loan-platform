@@ -1,16 +1,14 @@
 services:
   postgres:
     image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-loan}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loan}
-      POSTGRES_DB: ${POSTGRES_DB:-loan}
+    env_file:
+      - postgres.env
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-loan} -d ${POSTGRES_DB:-loan}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -24,25 +22,33 @@ services:
       - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       - --advertise-kafka-addr
       - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
-      - --smp
-      - "1"
+      - --smp=1
+      - --memory=1G
       - --overprovisioned
       - --default-log-level=warn
     ports:
       - "9092:9092"
     volumes:
       - redpanda:/var/lib/redpanda/data
+      - ./redpanda-config:/etc/redpanda
 
   opensearch:
     image: opensearchproject/opensearch:2.17.1
     environment:
-      - discovery.type=single-node
-      - plugins.security.disabled=true
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      # Entrypoint only skips the security demo when this is true (plugins.security.* env is not enough).
+      DISABLE_SECURITY_PLUGIN: "true"
+      discovery.type: single-node
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
     volumes:
       - osdata:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     ulimits:
       memlock:
         soft: -1
@@ -59,7 +65,8 @@ services:
     ports:
       - "5601:5601"
     depends_on:
-      - opensearch
+      opensearch:
+        condition: service_healthy
 
 volumes:
   pgdata:
