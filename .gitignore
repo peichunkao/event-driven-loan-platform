@@ -11,3 +11,4 @@ apps/web/dist
 .idea
 .vscode/*
 !.vscode/extensions.json
+*.tsbuildinfo
