@@ -1,0 +1,21 @@
+{
+  "name": "event-driven-loan-platform",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:workers": "pnpm --filter workers dev",
+    "dev:simulator": "pnpm --filter simulator dev",
+    "build": "pnpm --filter @loan-platform/shared build && pnpm --filter api build && pnpm --filter web build && pnpm --filter workers build && pnpm --filter simulator build",
+    "lint": "pnpm -r --if-present run lint",
+    "test": "pnpm -r --if-present run test",
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env.example up -d",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env.example down",
+    "docker:config": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env.example config",
+    "prepare": "pnpm --filter @loan-platform/shared build"
+  }
+}
