@@ -1,12 +1,54 @@
-# Event-driven loan platform
+# Event-Driven Digital Loan Platform (Unloan-style)
 
-Portfolio monorepo demonstrating a **React + TypeScript** frontend, **Node.js GraphQL** BFF (NestJS), **PostgreSQL**, **Kafka-compatible events** (Redpanda locally), and **OpenSearch** for search and ops views—aligned with an event-driven origination-style workflow.
+A cloud-ready, event-driven **digital mortgage / loan origination** platform that simulates real-time banker operations — inspired by modern digital home-loan systems such as Unloan. The stack is a TypeScript monorepo with a **React** UI, a **NestJS GraphQL BFF**, async **Kafka** workers, **PostgreSQL** as the source of truth, and **OpenSearch** for operational insight.
 
-## What this demonstrates
+## Key features
 
-- **GraphQL as a BFF** for the web app (not the internal integration backbone).
-- **Async domain events** consumed by dedicated workers (audit, notifications, risk/AI, indexing).
-- **Dockerized** data stack for local development with a path to AWS (ECS, RDS, MSK, OpenSearch Service).
+- **Real-time loan application processing** on a Kafka-compatible bus (Redpanda locally, MSK in AWS).
+- **GraphQL BFF** for the frontend aggregation surface — thin resolvers, clear separation from the event backbone.
+- **Event sourcing mindset**: every domain event is persisted as an immutable audit row and indexed for search.
+- **OpenSearch dashboards** for operational insight (event volume, per-application timelines).
+- **Simulated banker activity** for a live-looking demo (`off | normal | busy`) without needing real traffic.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Banker["Banker / Customer"] --> WebUI["React Vite UI"]
+  WebUI -->|"GraphQL"| Api["NestJS GraphQL BFF"]
+  Api -->|"write"| Pg[("PostgreSQL<br/>loan_applications + audit")]
+  Api -->|"publish"| Topic{{"Kafka topic<br/>loan.events"}}
+  Simulator["Simulator<br/>(downstream events)"] -->|"publish"| Topic
+  Topic --> AuditWorker["Audit Worker"] --> Pg
+  Topic --> IndexWorker["Indexing Worker"] --> OpenSearch[("OpenSearch<br/>loan-events")]
+  Topic --> NotifyWorker["Notification Worker (stub)"]
+  OpenSearch --> Dashboards["OpenSearch Dashboards"]
+  WebUI -->|"read audit + search"| Api
+```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for a submit-flow sequence diagram and component responsibilities.
+
+## Demo
+
+A short walkthrough of the dashboard and event stream will live at [docs/demo/](docs/demo/). Drop `demo.gif` (or `demo.mp4`) there and it renders inline:
+
+<!-- ![Demo](docs/demo/demo.gif) -->
+
+## Tech stack
+
+**React | TypeScript | NestJS | GraphQL | Kafka (Redpanda) | PostgreSQL | OpenSearch | Docker | AWS-ready (ECS, RDS, MSK, OpenSearch Service)**
+
+## Why this matters
+
+Modern digital banks (Unloan, CommBank Kaizen, Up, etc.) settle the same three questions this repo makes explicit: how the UI gets a *shaped* read model (GraphQL BFF), how writes fan out to *many* downstream concerns without coupling (Kafka + workers), and how you keep the **transactional** database honest while still offering **search / analytics** on the same data (Postgres + OpenSearch). Everything here is a small, working version of those patterns.
+
+## Engineering challenges
+
+- **Idempotent Kafka consumers** — audit inserts use `ON CONFLICT (event_id) DO NOTHING` (see [apps/workers/src/lib/audit-sql.ts](apps/workers/src/lib/audit-sql.ts)) so a re-delivered message never double-records.
+- **Event ordering per `applicationId`** — producers (API and simulator) use `applicationId` as the Kafka message key so all events for one loan land on the same partition in order.
+- **GraphQL BFF vs internal event backbone** — the UI never talks to Kafka; resolvers stay thin and delegate to services (see [docs/adr/0001-graphql-bff.md](docs/adr/0001-graphql-bff.md)).
+- **Transactional DB vs search index** — Postgres is source of truth; OpenSearch is rebuilt from the event stream and can be dropped or re-indexed without data loss.
+- **Local-to-cloud parity** — Redpanda (Kafka API) → MSK; Postgres → RDS; OpenSearch → OpenSearch Service; NestJS + workers → ECS / Fargate.
 
 ## Prerequisites
 
@@ -34,7 +76,7 @@ pnpm dev:simulator                    # Phase 3: synthetic downstream events →
 pnpm dev:notifications                # Phase 4: stub handler for NotificationSent
 ```
 
-The web UI creates **draft** applications, **submits** them (emits `LoanApplicationSubmitted` to Kafka), polls **loan applications** every **3s**, and shows **audit** (Postgres) and **search timeline** plus **event overview** (OpenSearch). See [docs/PHASES.md](docs/PHASES.md) for the phase map.
+The web UI creates **draft** applications, **submits** them (emits `LoanApplicationSubmitted` to Kafka), polls **loan applications** every **3s**, and shows an **audit timeline** (Postgres) plus **search timeline** and **event overview** (OpenSearch). See [docs/PHASES.md](docs/PHASES.md) for the phase map.
 
 ## Testing
 
@@ -45,12 +87,12 @@ The web UI creates **draft** applications, **submits** them (emits `LoanApplicat
 
 | Path | Role |
 |------|------|
-| `apps/web` | Vite + React UI |
-| `apps/api` | NestJS GraphQL API |
-| `apps/workers` | Event consumers (Kafka) |
-| `apps/simulator` | Live-ish banker activity (simulation) |
+| `apps/web` | Vite + React UI (the banker dashboard) |
+| `apps/api` | NestJS GraphQL BFF |
+| `apps/workers` | Event consumers (audit, indexing, notifications) |
+| `apps/simulator` | Synthetic banker activity |
 | `packages/shared` | Shared event envelope types (Zod) |
-| `infra/docker` | `docker-compose` for local stack |
+| `infra/docker` | `docker-compose` for the local stack |
 
 ## Scripts
 
@@ -62,6 +104,16 @@ The web UI creates **draft** applications, **submits** them (emits `LoanApplicat
 | `pnpm test` | Jest (API + shared) |
 | `pnpm docker:up` / `pnpm docker:down` | Start/stop Docker stack |
 | `pnpm docker:config` | Validate Compose file |
+
+## Future upgrades
+
+- **Next.js migration** of `apps/web` (App Router + SSR dashboard, `/api` routes as a thin BFF proxy) to align with Next.js-centric stacks used at CBA / Unloan-style teams.
+- **Auth**: SSO for bankers, row-level authorization on loan applications.
+- **AWS deploy**: Terraform/CDK for ECS + RDS + MSK + OpenSearch Service; CI/CD via GitHub Actions.
+- **Observability**: OpenTelemetry traces threaded through `traceId` already present on every event envelope.
+- **Demo recording**: capture a 30–60 s walkthrough for `docs/demo/demo.gif`.
+
+Tracked in [docs/PHASES.md](docs/PHASES.md).
 
 ## License
 

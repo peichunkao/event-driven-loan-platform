@@ -1,10 +1,10 @@
 # Local infrastructure (Docker)
 
-`infra/docker/docker-compose.yml` runs:
+Local mirror of the managed AWS data plane used by a digital loan origination platform. `infra/docker/docker-compose.yml` runs:
 
-- **PostgreSQL 16** — transactional source of truth (port `5432`).
-- **Redpanda** — Kafka-compatible streaming API for domain events (broker on host port `9092`). Other containers should use `redpanda:29092` (internal listener).
-- **OpenSearch + Dashboards** — search and operational views (`9200`, dashboards `5601`).
+- **PostgreSQL 16** — transactional source of truth for loan applications and the audit trail (port `5432`). Maps to **RDS / Aurora Postgres** in AWS.
+- **Redpanda** — Kafka-compatible streaming API for domain events (broker on host port `9092`; other containers use the internal listener `redpanda:29092`). Maps to **MSK** in AWS.
+- **OpenSearch + Dashboards** — search and operational views over the event stream (`9200`, dashboards `5601`). Maps to **Amazon OpenSearch Service**.
 
 ## Redpanda vs Apache Kafka
 
